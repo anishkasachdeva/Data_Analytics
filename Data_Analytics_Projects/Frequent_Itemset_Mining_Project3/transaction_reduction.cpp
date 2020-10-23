@@ -40,46 +40,60 @@ long double round(long double value, int pos)
     return temp;
 }
 
-long double getSupport(vector<int> candidate, vector<vector<int> >&dataset) {
+long double getSupport(vector<int> candidate, vector<vector<int> >&dataset, vector<bool>&transaction_reduction_flag, vector<int>&transaction_temp_flag) {
         int count = 0;
         int size = dataset.size();
 
-        for(int k = 0; k < size; k++)
+        for(int t_id = 0; t_id < size; t_id++)
         {
-            vector<int>transaction = dataset[k];
+            vector<int>transaction = dataset[t_id];
             int i, j;
-
-            if(transaction.size() < candidate.size())
-                continue;
-
-            for(i = 0, j = 0; i < transaction.size(); i++)
+            if(transaction_reduction_flag[t_id] == false)
             {
+                if(transaction.size() < candidate.size())
+                    continue;
+
+                for(i = 0, j = 0; i < transaction.size(); i++)
+                {
+                    if(j == candidate.size())
+                        break;
+
+                    if(transaction[i] == candidate[j])
+                        j++;
+                }
                 if(j == candidate.size())
-                    break;
-
-                if(transaction[i] == candidate[j])
-                    j++;
-            }
-            if(j == candidate.size())
-            {
-                count++;
+                {
+                    transaction_temp_flag[t_id] = 1;
+                    count++;
+                }
             }
         }
         return (long double)count/dataset.size()*100.0;
     }
 
 
-vector<vector<int> > generate_frequent_itemsets(vector<vector<int> >&dataset, vector<vector<int> >&Candidates_k, int minsup)
+vector<vector<int> > generate_frequent_itemsets(vector<vector<int> >&dataset, vector<vector<int> >&Candidates_k, vector<bool>&transaction_reduction_flag, int minsup)
 {
+    vector<int>transaction_temp_flag(dataset.size(),0);
     vector<vector<int> >frequents;
     for(int i = 0; i < Candidates_k.size(); i++)
     {
-        long double support = getSupport(Candidates_k[i], dataset);
+        long double support = getSupport(Candidates_k[i], dataset, transaction_reduction_flag, transaction_temp_flag);
         if(round(support, 2) < minsup)
             continue;
 
         frequents.push_back(Candidates_k[i]);
     }
+    for(int i = 0; i < transaction_temp_flag.size(); i++)
+    {
+        if(transaction_temp_flag[i] == 0)
+            transaction_reduction_flag[i] = true;
+    }
+    // for(int i = 0; i < transaction_reduction_flag.size(); i++)
+    // {
+    //     cout << transaction_reduction_flag[i] << " ";
+    // }
+    // cout << endl;
     return frequents;
 }
 
@@ -163,7 +177,7 @@ vector<vector<int> > process_next_candidates(vector<vector<int>> L_k, vector<vec
 }
 
 
-void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, vector<vector<int> >&dataset,vector<vector<vector<int> > >&frequent_itemsets_mined, int items_size, int minsup)
+void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, vector<vector<int> >&dataset,vector<vector<vector<int> > >&frequent_itemsets_mined,vector<bool>&transaction_reduction_flag, int items_size, int minsup)
 {
     while(1)
     {
@@ -172,7 +186,7 @@ void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, ve
         if(Candidates_k.size() == 0)
             break;
 
-        L_k = generate_frequent_itemsets(dataset, Candidates_k, minsup);
+        L_k = generate_frequent_itemsets(dataset, Candidates_k, transaction_reduction_flag, minsup);
 
         frequent_itemsets_mined.push_back(L_k);
 
@@ -269,13 +283,14 @@ int main(void)
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    vector<bool>transaction_reduction_flag(dataset.size(),false);
     vector<vector<int> >Candidates_k;
     vector<vector<int> >L_k;
     vector<vector<vector<int> > >frequent_itemsets_mined;
     int items_size = 1; //initially for singletons
 
     time(&start); 
-    run_apriori(Candidates_k, L_k, dataset, frequent_itemsets_mined, items_size, minsup);
+    run_apriori(Candidates_k, L_k, dataset, frequent_itemsets_mined,transaction_reduction_flag, items_size, minsup);
     time(&end); 
 
     // for(int i = 0; i < frequent_itemsets_mined.size(); i++)
