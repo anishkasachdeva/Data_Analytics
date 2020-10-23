@@ -63,7 +63,6 @@ vector<vector<int> > generate_frequent_itemsets(vector<vector<int> >&dataset, ve
     for(int i = 0; i < Candidates_k.size(); i++)
     {
         long double support = getSupport(Candidates_k[i], dataset);
-        // cout << Candidates_k[i].size() << " ";
         if(round(support, 2) < minsup)
             continue;
 
@@ -93,7 +92,6 @@ vector<vector<int> > prune(vector<vector<int> >&L_k, vector<vector<int> >&merged
             merged_item.erase(merged_item.begin() + j);
             if(L_k_set.find(merged_item) == L_k_set.end())
             {
-                // cout << "fghjkgfhj" << endl;
                 is_present = true;
                 break;
             }
@@ -127,9 +125,7 @@ vector<vector<int> > merge(vector<vector<int>> L_k)
                 merged_L_k.push_back(v2);
             }
             else
-            {
                 break;
-            }
         }
     }
     return merged_L_k;
@@ -184,6 +180,7 @@ void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, ve
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 int main(void)
 {
+    time_t start, end; 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //BASIC INITIALZATIONS
     double minsup;
@@ -204,8 +201,13 @@ int main(void)
     vector<vector<int> >dataset;
     vector<int>transaction;
 
-    //Write error message for not opening a file!----------------------- TODO !!
+    //Error message for not opening a file
     ifstream file_data(input_file);
+    if(!file_data)
+    {
+        cout << endl << "The given file does not exist!" << endl;
+        return -1;
+    }
     string single_transaction;
 
     while(getline(file_data, single_transaction))
@@ -257,8 +259,9 @@ int main(void)
     vector<vector<vector<int> > >frequent_itemsets_mined;
     int items_size = 1; //initially for singletons
 
-
+    time(&start); 
     run_apriori(Candidates_k, L_k, dataset, frequent_itemsets_mined, items_size, minsup);
+    time(&end); 
 
     // for(int i = 0; i < frequent_itemsets_mined.size(); i++)
     // {
@@ -273,6 +276,10 @@ int main(void)
     //     }
     //     cout << endl;
     // }
+    double time_taken = double(end - start); 
+    cout << endl << "Time taken by program is : " << fixed 
+         << time_taken << setprecision(5); 
+    cout << " sec " << endl; 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     return 0;
 }
