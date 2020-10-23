@@ -41,30 +41,29 @@ long double round(long double value, int pos)
 
 long double getSupport(vector<int> item, vector<vector<int> >&dataset) {
         int ret = 0;
-        for(auto&row:dataset){
+        for(auto&row:dataset)
+        {
             int i, j;
             if(row.size() < item.size()) continue;
             for(i=0, j=0; i < row.size();i++) {
                 if(j==item.size()) break;
                 if(row[i] == item[j]) j++;
             }
-            if(j==item.size()){
+            if(j==item.size()) {
                 ret++;
             }
         }
-        // cout << (long double)ret/transactions.size()*100.0 << endl;
         return (long double)ret/dataset.size()*100.0;
     }
 
 
-
 vector<vector<int> > generate_frequent_itemsets(vector<vector<int> >&dataset, vector<vector<int> >&Candidates_k, int minsup)
 {
-    // cout << "Came to generate frequent itemsets" << endl;
     vector<vector<int> >ret;
     for(int i = 0; i < Candidates_k.size(); i++)
     {
         long double support = getSupport(Candidates_k[i], dataset);
+        // cout << Candidates_k[i].size() << " ";
         if(round(support, 2) < minsup)
             continue;
 
@@ -82,35 +81,6 @@ vector<vector<int> > prune(vector<vector<int> >&L_k, vector<vector<int> >&merged
     {
         L_k_set.insert(L_k[i]);
     }
-
-    // cout << L_k_set.size() << endl;
-    // for(itr = L_k_set.begin(); itr != L_k_set.end(); itr++)
-    // {
-    //     for(int j = 0; j < itr.size(); j++)
-    //     {
-    //         cout << L
-    //     }
-    // }
-    // cout << "original " << endl;
-    // for(int i = 0; i < L_k.size(); i++)
-    // {
-    //     for(int j = 0; j < L_k[i].size();j++)
-    //     {
-    //         cout << L_k[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-
-    // cout << "merged " << endl;
-    // for(int i = 0; i < merged_L_k.size(); i++)
-    // {
-    //     for(int j = 0; j < merged_L_k[i].size();j++)
-    //     {
-    //         cout << merged_L_k[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
 
     vector<vector<int> >pruned;
     bool is_present = false;
@@ -131,65 +101,29 @@ vector<vector<int> > prune(vector<vector<int> >&L_k, vector<vector<int> >&merged
         if(is_present == false)
             pruned.push_back(merged_L_k[i]);
     }
-    // for(int i = 0; i < pruned.size(); i++)
-    // {
-    //     for(int j = 0; j < pruned[i].size();j++)
-    //     {
-    //         cout << pruned[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
     return pruned;
 }
 
 
 vector<vector<int> > merge(vector<vector<int>> L_k)
 {
-    // cout << "came to merge" << endl;
-    // for(int i = 0; i < L_k.size(); i++)
-    // {
-    //     for(int j = 0; j < L_k[i].size();j++)
-    //     {
-    //         cout << L_k[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
     vector<vector<int>>merged_L_k;
     for(int i = 0; i < L_k.size(); i++)
     {
         vector<int>v1 = L_k[i];  
-        // cout << "v1 ";
-        // for(int x = 0; x < v1.size(); x++)
-        // {
-        //     cout << v1[x] << " ";
-        // }
-        // cout << endl;
         int last_item_v1 = v1[v1.size()-1];
         v1.pop_back();
         for(int j = i + 1; j < L_k.size(); j++)
         {
-            // cout << j << endl;
             vector<int>v2 = L_k[j];
-            // cout << "v2 ";
-            // for(int y = 0; y < v1.size(); y++)
-            // {
-            //     cout << v2[y] << " ";
-            // }
-            // cout << endl;
             int last_item_v2 = v2[v2.size()-1];
             v2.pop_back();
             if(v1 == v2)
             {
-                // cout << "cameeeeeeeeeeeeeeeeeeee" << endl;
                 int small = min(last_item_v1, last_item_v2);
                 int large = max(last_item_v1, last_item_v2);
                 v2.push_back(small);
                 v2.push_back(large);
-                // for(int t = 0; t < v2.size(); t++)
-                // {
-                //     cout << v2[t] << " ";
-                // }
-                // cout << endl;
                 merged_L_k.push_back(v2);
             }
             else
@@ -198,14 +132,6 @@ vector<vector<int> > merge(vector<vector<int>> L_k)
             }
         }
     }
-    // for(int i = 0; i < merged_L_k.size(); i++)
-    // {
-    //     for(int j = 0; j < merged_L_k[i].size();j++)
-    //     {
-    //         cout << merged_L_k[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
     return merged_L_k;
 }
 
@@ -223,16 +149,7 @@ vector<vector<int> > process_next_candidates(vector<vector<int>> L_k, vector<vec
     else //for itemset size  > 2
     {
         vector<vector<int>>merged_L_k = merge(L_k);
-        // for(int i = 0; i < merged_L_k.size(); i++)
-        // {
-        //     for(int j = 0; j < merged_L_k[i].size(); j++)
-        //     {
-        //         cout << merged_L_k[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
         return prune(L_k, merged_L_k);
-        // return prune();
     }
 }
 
@@ -246,46 +163,20 @@ void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, ve
         if(Candidates_k.size() == 0)
             break;
 
-
-        // for(int i = 0; i < L_k.size(); i++)
-        // {
-        //     for(int j = 0; j < L_k[i].size(); i++)
-        //     {
-        //         cout << L_k[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
-
         L_k = generate_frequent_itemsets(dataset, Candidates_k, minsup);
 
         frequent_itemsets_mined.push_back(L_k);
-        // cout << L_k.size() << endl;
-        // for(int i = 0; i < L_k.size(); i++)
-        // {
-        //     for(int j = 0; j < L_k[i].size(); j++)
-        //     {
-        //         cout << L_k[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
-        // cout << "Item_size : " << items_size-1 << endl;
-        // for(int i = 0; i < Candidates_k.size(); i++)
-        // {
-        //     for(int j = 0; j < Candidates_k[i].size(); i++)
-        //     {
-        //         cout << Candidates_k[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
-        // cout << "---------------------" << endl;
-        // for(int i = 0; i < L_k.size(); i++)
-        // {
-        //     for(int j = 0; j < L_k[i].size(); i++)
-        //     {
-        //         cout << L_k[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
+        cout << endl;
+        cout << "Item_size : " << items_size-1 << endl;
+
+        for(int i = 0; i < L_k.size(); i++)
+        {
+            for(int j = 0; j < L_k[i].size(); j++)
+            {
+                cout << L_k[i][j] << " ";
+            }
+            cout << endl;
+        }
     }
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -383,47 +274,6 @@ int main(void)
     //     cout << endl;
     // }
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    //1-ITEMSET - SINGLETONS
-
-    // unordered_map<int,int>singleton_frequency_hashmap;
-    // long long int singleton_frequency_hashmap[max_single_item + 5] = {0};
-    // set<int>frequent_itemsets_singletons;
-    // set<int>:: iterator itr;
-    // singletons_using_frequencyHash(minsup, dataset,singleton_frequency_hashmap, frequent_itemsets_singletons);
-
-    // PRINTING THE FREQUENCIES OF SINGLETONS
-    // for(int items = 0; items <= max_single_item; items++)
-    // {
-    //     cout << singleton_frequency_hashmap[items] << " ";
-    // }
-    // cout << endl;
-
-
-    //PRINTING THE FREQUENT SINGLETONS
-    // for(itr = frequent_itemsets_singletons.begin(); itr != frequent_itemsets_singletons.end(); itr++)
-    // {
-    //     cout << *itr << " ";
-    // }
-    // cout << endl;
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    //2-ITEMSET - PAIRS
-    // pairs_using_matrixHash(minsup, dataset);
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // > 2-ITEMSET
-    // remaining_using_hashTree(minsup, dataset);
-    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     return 0;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
