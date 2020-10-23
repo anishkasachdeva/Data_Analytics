@@ -11,7 +11,8 @@ vector<vector<int> > singletons_using_frequencyHash(vector<vector<int> >&dataset
     vector<vector<int> >elements;
     for(int i = 0; i < dataset.size(); i++)
     {
-        for(int j = 0; j < dataset[i].size(); j++)
+        int size = dataset[i].size();
+        for(int j = 0; j < size; j++)
         {
             singletons.insert(dataset[i][j]);
         }
@@ -86,7 +87,8 @@ vector<vector<int> > prune(vector<vector<int> >&L_k, vector<vector<int> >&merged
     for(int i = 0; i < merged_L_k.size(); i++)
     {
         is_present = false;
-        for(int j = 0; j < merged_L_k[i].size(); j++)
+        int size = merged_L_k[i].size();
+        for(int j = 0; j < size; j++)
         {
             vector<int>merged_item = merged_L_k[i];
             merged_item.erase(merged_item.begin() + j);
@@ -162,17 +164,19 @@ void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, ve
         L_k = generate_frequent_itemsets(dataset, Candidates_k, minsup);
 
         frequent_itemsets_mined.push_back(L_k);
-        cout << endl;
-        cout << "Item_size : " << items_size-1 << endl;
 
+        cout << "Frequent Itemsets of size " << items_size-1 << " are : " << endl;
         for(int i = 0; i < L_k.size(); i++)
         {
-            for(int j = 0; j < L_k[i].size(); j++)
+            int size = L_k[i].size();
+            // cout << "{";
+            for(int j = 0; j < size; j++)
             {
                 cout << L_k[i][j] << " ";
             }
             cout << endl;
         }
+        cout << endl << "------------------------------------------------------------" << endl;        
     }
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -277,7 +281,7 @@ int main(void)
     //     cout << endl;
     // }
     double time_taken = double(end - start); 
-    cout << endl << "Time taken by program is : " << fixed 
+    cout << endl << endl << "Time taken by the Apriori Algorithm with Hash Based Technique is : " << fixed 
          << time_taken << setprecision(5); 
     cout << " sec " << endl; 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
