@@ -1,22 +1,22 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-
+set<int>singletons;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 vector<vector<int> > singletons_using_frequencyHash(vector<vector<int> >&dataset)
 {
-    set<int>singletons;
+    // set<int>singletons;
     set<int>::iterator itr;
 
     vector<vector<int> >elements;
-    for(int i = 0; i < dataset.size(); i++)
-    {
-        int size = dataset[i].size();
-        for(int j = 0; j < size; j++)
-        {
-            singletons.insert(dataset[i][j]);
-        }
-    }
+    // for(int i = 0; i < dataset.size(); i++)
+    // {
+    //     int size = dataset[i].size();
+    //     for(int j = 0; j < size; j++)
+    //     {
+    //         singletons.insert(dataset[i][j]);
+    //     }
+    // }
     for(itr = singletons.begin(); itr != singletons.end(); itr++)
     {
         elements.push_back(vector<int>(1, *itr));
@@ -40,33 +40,34 @@ long double round(long double value, int pos)
     return temp;
 }
 
-long double getSupport(vector<int> candidate, vector<vector<int> >&dataset) {
-        int count = 0;
-        int size = dataset.size();
+long double getSupport(vector<int> candidate, vector<vector<int> >&dataset)
+{
+    int count = 0;
+    int size = dataset.size();
 
-        for(int k = 0; k < size; k++)
+    for(int k = 0; k < size; k++)
+    {
+        vector<int>transaction = dataset[k];
+        int i, j;
+
+        if(transaction.size() < candidate.size())
+            continue;
+
+        for(i = 0, j = 0; i < transaction.size(); i++)
         {
-            vector<int>transaction = dataset[k];
-            int i, j;
-
-            if(transaction.size() < candidate.size())
-                continue;
-
-            for(i = 0, j = 0; i < transaction.size(); i++)
-            {
-                if(j == candidate.size())
-                    break;
-
-                if(transaction[i] == candidate[j])
-                    j++;
-            }
             if(j == candidate.size())
-            {
-                count++;
-            }
+                break;
+
+            if(transaction[i] == candidate[j])
+                j++;
         }
-        return (long double)count/dataset.size()*100.0;
+        if(j == candidate.size())
+        {
+            count++;
+        }
     }
+    return (long double)count/dataset.size()*100.0;
+}
 
 
 vector<vector<int> > generate_frequent_itemsets(vector<vector<int> >&dataset, vector<vector<int> >&Candidates_k, int minsup)
@@ -180,7 +181,6 @@ void run_apriori(vector<vector<int> >&Candidates_k, vector<vector<int> >&L_k, ve
         for(int i = 0; i < L_k.size(); i++)
         {
             int size = L_k[i].size();
-            // cout << "{";
             for(int j = 0; j < size; j++)
             {
                 cout << L_k[i][j] << " ";
@@ -237,6 +237,7 @@ int main(void)
                 item_i >> item_ii;
                 max_single_item = max(max_single_item, item_ii);
                 transaction.push_back(item_ii);
+                singletons.insert(item_ii);          //PRECOMPUTING SINGLETONS BEFOREHAND TO AVOID AN EXTRA PASS
                 item = "";
             }
             else if(single_transaction[i] == '-')
