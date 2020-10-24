@@ -32,6 +32,7 @@ vector<vector<int> > pairs_using_HashTechnique(vector<set<int> >&dataset)
     return elements;
 }
 
+
 long double round(long double value, int pos)
 {
     long double temp;
@@ -86,15 +87,17 @@ long double round(long double value, int pos)
 //     return frequents;
 // }
 
-vector<long double> get_candidate_supports(vector<vector<int> >&Candidates_k, vector<set<int> >&dataset)
+vector<int> get_candidate_supports(vector<vector<int> >&Candidates_k, vector<set<int> >&dataset)
 {
     vector<int> support_count(Candidates_k.size(),0);
-    vector<long double> support(Candidates_k.size(),0.0);
+    // vector<long double> support(Candidates_k.size(),0.0);
 
     for(int t_id = 0; t_id < dataset.size(); t_id++)
     {
+        if(dataset[t_id].size() < Candidates_k[0].size())
+            continue;
+
         set<int>transaction = dataset[t_id];
-        set<int>::iterator itr;
 
         for(int c_id = 0; c_id < Candidates_k.size(); c_id++)
         {
@@ -117,30 +120,28 @@ vector<long double> get_candidate_supports(vector<vector<int> >&Candidates_k, ve
         }
         
     }
-    for(int i = 0; i < Candidates_k.size(); i++)
-    {
-        support[i] = (long double)support_count[i]/dataset.size()*100.0;
-    }
-    return support;
+    // for(int i = 0; i < Candidates_k.size(); i++)
+    // {
+    //     support[i] = (long double)support_count[i]/dataset.size()*100.0;
+    // }
+    return support_count;
 }
+
 
 void generate_frequent_itemsets(vector<vector<int> >&L_k,vector<set<int> >&dataset, vector<vector<int> >&Candidates_k, int minsup)
 {
     // vector<vector<int> >frequents;
     L_k.clear();
-    vector<long double> Candidates_k_supports = get_candidate_supports(Candidates_k, dataset);
+    vector<int> Candidates_k_supports = get_candidate_supports(Candidates_k, dataset);
     for(int i = 0; i < Candidates_k.size(); i++)
     {
         // long double support = getSupport(Candidates_k[i], dataset);
-        if(round(Candidates_k_supports[i], 2) < minsup)
+        if(Candidates_k_supports[i] < minsup)
             continue;
 
         L_k.push_back(Candidates_k[i]);
     }
 }
-
-
-
 
 
 void process_next_candidates(vector<vector<int> >&Candidates_k,vector<vector<int> > &L_k, vector<set<int> >&dataset, int items_size)
@@ -274,7 +275,7 @@ int main(void)
     time_t start, end; 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //BASIC INITIALZATIONS
-    double minsup;
+    int minsup;
     cout << "Enter the Minimum Support Value : ";
     cin >> minsup;
     cout << "------------------------------------------------------------" << endl;
@@ -312,7 +313,6 @@ int main(void)
                 int item_ii = 0;
                 item_i >> item_ii;
                 max_single_item = max(max_single_item, item_ii);
-                // cout << item_ii << endl;
                 transaction.insert(item_ii);
                 singletons.insert(item_ii);          //PRECOMPUTING SINGLETONS BEFOREHAND TO AVOID AN EXTRA PASS
                 item = "";
@@ -327,10 +327,7 @@ int main(void)
             }
             i++;
         }
-        // cout << transaction.size() << endl;
-        // sort(transaction.begin(), transaction.end());
         dataset.push_back(transaction);
-        // cout << dataset[0].size() << endl;
         transaction.clear();
     }
     file_data.close();
